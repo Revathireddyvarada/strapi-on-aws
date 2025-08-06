@@ -1,24 +1,31 @@
-# Use Node.js base image
-FROM node:18
+# Use stable Node.js 18 image
+FROM node:18-slim
+
+# Prevents npm from asking questions during install
+ENV NODE_ENV=development \
+    HOST=0.0.0.0 \
+    PORT=1337
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
+# Copy package files first (for better caching)
+COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with full logging (helps debug failures)
+RUN npm install --verbose || cat /root/.npm/_logs/*.log
 
-# Copy the rest of the app
-COPY . .
-
-# Build the admin panel
+# Build the admin panel (Strapi needs this)
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
+# Copy the rest of the application (after install!)
+COPY . .
 
-# Expose the port Strapi runs on
+# Remove host node_modules if any (ensure clean)
+RUN rm -rf node_modules && npm install --no-optional
+
+# Expose port
 EXPOSE 1337
 
-# Start the Strapi application
-CMD ["npm", "start"]
+# Start Strapi
+CMD ["npm", "run", "develop"]
