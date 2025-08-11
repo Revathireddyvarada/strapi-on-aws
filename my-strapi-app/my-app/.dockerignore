@@ -1,9 +1,11 @@
 node_modules
+.tmp
+build
+.git
+*.log
 npm-debug.log
 .env.local
-.env.development
-.git
-.github
+.env.example
+README.md
 Dockerfile
 .dockerignore
-README.md

@@ -1,31 +1,27 @@
-# Use stable Node.js 18 image
+# Dockerfile
 FROM node:18-slim
 
-# Prevents npm from asking questions during install
 ENV NODE_ENV=development \
     HOST=0.0.0.0 \
     PORT=1337
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files first (for better caching)
+# Copy package files
 COPY package*.json ./
 
-# Install dependencies with full logging (helps debug failures)
-RUN npm install --verbose || cat /root/.npm/_logs/*.log
+# Install production dependencies only
+RUN npm install --production --silent
 
-# Build the admin panel (Strapi needs this)
-RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
+# Build admin
+RUN npm run build
 
-# Copy the rest of the application (after install!)
+# Copy rest of app
 COPY . .
 
-# Remove host node_modules if any (ensure clean)
-RUN rm -rf node_modules && npm install --no-optional
+# Don't reinstall node_modules — just ensure integrity
+# Avoid: rm -rf node_modules && npm install
 
-# Expose port
 EXPOSE 1337
 
-# Start Strapi
 CMD ["npm", "run", "develop"]
