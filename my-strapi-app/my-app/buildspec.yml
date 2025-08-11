@@ -1,0 +1,40 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing rsync and ssh
+      - apt-get update
+      - apt-get install -y rsync ssh
+
+  build:
+    commands:
+      - echo Building Strapi...
+      - npm install
+      - npm run build
+
+  post_build:
+    commands:
+      - echo Deploying to EC2...
+      - echo "Using EC2_HOST: $EC2_HOST"
+      - mkdir -p ~/.ssh
+      - echo "$EC2_SSH_KEY" > ~/.ssh/ec2-key.pem
+      - chmod 600 ~/.ssh/ec2-key.pem
+
+      # Sync files to EC2
+      - rsync -avz -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem" \
+          --exclude node_modules \
+          --exclude .git \
+          --exclude .env \
+          ./ ubuntu@$EC2_HOST:~/strapi-deploy/
+
+      # Run deployment commands on EC2
+      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem ubuntu@$EC2_HOST << 'EOF'
+          cd ~/strapi-deploy
+          cp -r * /home/ubuntu/strapi-on-aws/my-strapi-app/my-app/
+          cd /home/ubuntu/strapi-on-aws/my-strapi-app/my-app
+          npm install --production
+          npm run build
+          pm2 restart strapi || pm2 start "npm run develop" --name strapi
+          echo "✅ Deployment complete!"
+        EOF
