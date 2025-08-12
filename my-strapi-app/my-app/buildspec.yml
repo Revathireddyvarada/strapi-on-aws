@@ -1,5 +1,12 @@
 version: 0.2
 
+env:
+  runtime-versions:
+    nodejs: 18
+  cache:
+    paths:
+      - 'node_modules/**/*'
+
 phases:
   install:
     commands:
@@ -9,31 +16,29 @@ phases:
 
   build:
     commands:
-      - echo "🏗 Building Strapi..."
-      - npm install
+      - echo "🏗 Installing dependencies and building Strapi..."
+      - npm ci
       - npm run build
 
   post_build:
     commands:
-      - echo "🚀 Deploying to EC2: $EC2_HOST"
-      
-      # Prepare SSH key from environment variable (stored securely in Secrets Manager/SSM)
+      - echo "🚀 Deploying built Strapi to EC2: $EC2_HOST"
+
+      # Prepare SSH key from environment variable
       - mkdir -p ~/.ssh
       - echo "$EC2_SSH_KEY" > ~/.ssh/ec2-key.pem
       - chmod 600 ~/.ssh/ec2-key.pem
 
-      # Sync files directly to Strapi app folder on EC2
+      # Sync only needed files to EC2
       - rsync -avz -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem" \
-          --exclude node_modules \
           --exclude .git \
           --exclude .env \
+          --exclude tests \
           ./ ubuntu@$EC2_HOST:/home/ubuntu/strapi-on-aws/my-strapi-app/my-app/
 
-      # Install dependencies, build, and restart Strapi on EC2
+      # Restart Strapi on EC2 (no rebuild here)
       - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem ubuntu@$EC2_HOST << 'EOF'
           cd /home/ubuntu/strapi-on-aws/my-strapi-app/my-app
-          npm install --production
-          npm run build
           pm2 restart strapi || pm2 start "npm run start" --name strapi
           echo "✅ Deployment complete!"
         EOF
