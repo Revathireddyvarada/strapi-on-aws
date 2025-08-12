@@ -23,19 +23,16 @@ phases:
   post_build:
     commands:
       - echo "🚀 Deploying built Strapi to EC2: $EC2_HOST"
-
       # Prepare SSH key from environment variable
       - mkdir -p ~/.ssh
       - echo "$EC2_SSH_KEY" > ~/.ssh/ec2-key.pem
       - chmod 600 ~/.ssh/ec2-key.pem
-
       # Sync only needed files to EC2
       - rsync -avz -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem" \
           --exclude .git \
           --exclude .env \
           --exclude tests \
           ./ ubuntu@$EC2_HOST:/home/ubuntu/strapi-on-aws/my-strapi-app/my-app/
-
       # Restart Strapi on EC2 (no rebuild here)
       - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem ubuntu@$EC2_HOST << 'EOF'
           cd /home/ubuntu/strapi-on-aws/my-strapi-app/my-app
