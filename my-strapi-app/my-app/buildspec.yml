@@ -3,64 +3,37 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo Installing rsync and ssh
+      - echo "📦 Installing rsync and ssh..."
       - apt-get update
       - apt-get install -y rsync ssh
 
   build:
     commands:
-      - echo Building Strapi...
+      - echo "🏗 Building Strapi..."
       - npm install
       - npm run build
 
   post_build:
     commands:
-      - echo Deploying to EC2...
-      - echo "Using EC2_HOST:13.233.0.42"
+      - echo "🚀 Deploying to EC2: $EC2_HOST"
+      
+      # Prepare SSH key from environment variable (stored securely in Secrets Manager/SSM)
       - mkdir -p ~/.ssh
-      - echo "-----BEGIN RSA PRIVATE KEY-----
-MIIEogIBAAKCAQEAwnz5c4qvZ4kvUJ+HPWDlmH+DA9jcqpGsCDyX+I9IYQLF6MIy
-nm9cHMxeurpuEm4fHK8mi34WIfcCJhVWKL61Au60ZzFyVNoWC1HrWgHiymvfLtlY
-4k+1dVBYJXgz+ziM/4V+aFH6G6lUIaZqoQev49QSSoXDxQ/UditWZ9HbyeXO42AI
-w+uVx/5Agump9AckbkarDg3dz8vr8Vfl3fojETkhqinpPWzCUx/6VcO304D1J2B1
-Le2WlGWmCMKAVc01VTxUxe0OH9f0Jlcb4iJLBvWiXFKZbNVKI/yVpfWAWksdSny3
-n1VsA/8bOmx/EJnZAA0RVRGDjYFwtJBQ8uvC+wIDAQABAoIBACj8U0lhGZPVGi6A
-X+y0Zc4cWQzPf7lGV52ov1H3SAaBohlqC2bOCvharT/ml9m0cUQHOTU+TgW8WyyR
-ZIXToqvKiCQTDIgLKYgbLGDccuG7l930mcGfkJr3YowK59FyWmxiwn/TfsSji4JH
-4sKqrwtxHqWryNTXgCui+GOKmynRsOf9HvA8AFuZC2uvmU7J28o3NS7E+Dy7oYCc
-i1fQMT7WQVGqKm385Fiso/isZVu2rZ47cErr4OGnYBtb3m7FS6J+eL6Rccq9El4x
-W087EXuQmtHoozsT4i29V+ibVbGeMaBb1VG5/9DSvIb9XaXw8aubIRW9HsXNFMP6
-g28/tqECgYEA7iBQU/TKCVjdvLF0R0jP5YtKtCd5zzTW/3MRFScwKUZKSVdHYwoZ
-ZWSIDMuOhYt9fFXpHcip6UvYS519gPFT3g0cH/Hxj+P7jt2qSh8G120zpCpdmhQH
-fqTliGorzbxT4yfAxose5Ldf1kjaxDGjoEGwHbPXgnYBgNkOT5u2cGsCgYEA0RYj
-lAMuXU36LqaHZwk+3ypnPj75NSWlKMSG6deWcdl5dDZsVlZ7fLXt53kJZTdP3vi0
-qsg5gRo1IGNMrOVJDBqUvMnbtz88q10IW+/PFrlJKyKjSdRhhYx7WzJZPAsgQtsa
-S7Daunr4ZvZRAlcCF4RZasNF+BD1kvkDC3v2W7ECgYAha6uafOq2MSC90PIO5ys2
-fjw32KqB6Fqcc5vcKinaQSE/9d3xCoPR9TAbC56vI4qzHqOfKICgW6K5yhrJNBWf
-PpvJ5/0NQuQVgwrZaE1fgtYSnleQvmrm3WHRqYUIVPw5D2VA+FmXpBzxSDxb+NOM
-NGvxX0JJ7yH64XvetG4AjQKBgBUokGEiEUcP5QljgMBEh0A+IkSCSuW98YC2opB3
-aJoMz+WavEvgZI6yOmj6LqE3f7WopV/C807FQCsO4Wt9qG65IeQY6UsZ8yHEQFxN
-YD+EcIsU7kFCZLwHA1SvO6h/17vsQDT4qKnGV+zTcE80TtniYsoTCLmZvcApws0e
-tkeBAoGAT5DpJxtrs4CTtL8SaStfMlTT3ouoqy4PDyiWQ624Xi+99T6ByVR9UAr7
-MU61H9p3RB6ChJqFqPLkitXholpVqPApfgJrVCMw1uyBQGvrbWMnrZg12ceuffVe
-lZ3NbS5E3aifwYkCR55VjUINfIrFHYDzKawevzO/6IECHLd9plE=
------END RSA PRIVATE KEY----- " > ~/.ssh/ec2-key.pem
+      - echo "$EC2_SSH_KEY" > ~/.ssh/ec2-key.pem
       - chmod 600 ~/.ssh/ec2-key.pem
 
-      # Sync files to EC2
+      # Sync files directly to Strapi app folder on EC2
       - rsync -avz -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem" \
           --exclude node_modules \
           --exclude .git \
           --exclude .env \
-          ./ ubuntu@13.233.0.42:~/strapi-deploy/
+          ./ ubuntu@$EC2_HOST:/home/ubuntu/strapi-on-aws/my-strapi-app/my-app/
 
-      # Run deployment commands on EC2
-      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem ubuntu@13.233.0.42 << 'EOF'
-          cd ~/strapi-deploy
-          cp -r * /home/ubuntu/strapi-on-aws/my-strapi-app/my-app/
+      # Install dependencies, build, and restart Strapi on EC2
+      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem ubuntu@$EC2_HOST << 'EOF'
           cd /home/ubuntu/strapi-on-aws/my-strapi-app/my-app
           npm install --production
           npm run build
-          pm2 restart strapi || pm2 start "npm run develop" --name strapi
+          pm2 restart strapi || pm2 start "npm run start" --name strapi
           echo "✅ Deployment complete!"
         EOF
