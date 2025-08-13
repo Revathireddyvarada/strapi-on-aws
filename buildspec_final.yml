@@ -1,38 +1,9 @@
 version: 0.2
 
-env:
-  variables:
-    # Replace these with your actual server info
-    DEPLOY_USER: ubuntu
-    DEPLOY_HOST: 13.233.0.42
-    DEPLOY_PATH: /var/www/my-strapi-app
-    SSH_KEY_PATH: /root/.ssh/id_rsa  # Path to your private key in CodeBuild
-
 phases:
   install:
-    runtime-versions:
-      nodejs: 18
     commands:
-      - echo "🔧 Using Node $(node --version)"
-      - echo "🔧 Using NPM $(npm --version)"
-      - cd my-strapi-app/my-app
-      - npm install
-
-  build:
-    commands:
-      - npm run build
-
-  post_build:
-    commands:
-      - echo "🚀 Deploying to server..."
-      # Ensure the target directory exists
-      - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_PATH $DEPLOY_USER@$DEPLOY_HOST "mkdir -p $DEPLOY_PATH"
-      # Copy files to server
-      - scp -o StrictHostKeyChecking=no -i $SSH_KEY_PATH -r ./* $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
-      # Optional: restart Strapi (systemd example)
-      - ssh -o StrictHostKeyChecking=no -i $SSH_KEY_PATH $DEPLOY_USER@$DEPLOY_HOST "sudo systemctl restart strapi.service"
-
-cache:
-  paths:
-    - my-strapi-app/my-app/node_modules/**/* 
+      # This command will list all files and folders recursively from the starting point.
+      # The 'cd' command has been removed to ensure this command runs.
+      - "ls -R"
 
