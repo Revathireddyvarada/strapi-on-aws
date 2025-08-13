@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "🔧 Installing dependencies"
+      - cd my-strapi-app/my-app
+      - npm install
+
+  build:
+    commands:
+      - echo "🏗 Building Strapi app"
+      - npm run build
+
+  post_build:
+    commands:
+      - echo "📦 Preparing artifact for CodeDeploy"
+      - cd ../..
+      - mkdir -p codedeploy
+      - cp -R my-strapi-app/my-app/* codedeploy/
+      - cp appspec.yml codedeploy/
+      - cp -R scripts codedeploy/
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: codedeploy
+  discard-paths: no
