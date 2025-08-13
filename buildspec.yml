@@ -1,6 +1,8 @@
 version: 0.2
 
 env:
+  # This is the correct way to specify the image.
+  # The buildspec.yml takes precedence over the console UI.
   image: aws/codebuild/standard:7.0
   runtime-versions:
     nodejs: 18
@@ -8,6 +10,7 @@ env:
 phases:
   install:
     commands:
+      # These commands are great for verifying the environment
       - "echo '🔧 Using Node $(node --version)'"
       - "echo '🔧 Compiler: $(g++ --version)'"
       - "cd my-strapi-app/my-app"
