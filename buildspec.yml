@@ -7,8 +7,6 @@ phases:
     commands:
       - echo "Starting install phase"
       - cd my-strapi-app/my-app
-      - echo "In directory: $(pwd)"
-      - ls -la
       - npm install
 
   build:
