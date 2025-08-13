@@ -7,7 +7,6 @@ phases:
     commands:
       - echo "🔍 Current directory: $(pwd)"
       - find . -name "package.json"
-      # ✅ Change to the correct directory
       - cd my-strapi-app/my-app
       - echo "✅ Changed to directory: $(pwd)"
       - npm install
@@ -17,7 +16,6 @@ phases:
       - npm run build
 
 artifacts:
-  # ✅ Make sure to package the built app
   base-directory: my-strapi-app/my-app
   files:
     - '**/*'
@@ -25,3 +23,4 @@ artifacts:
 cache:
   paths:
     - my-strapi-app/my-app/node_modules/**/*
+
