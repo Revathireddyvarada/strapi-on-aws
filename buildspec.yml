@@ -5,10 +5,10 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      - echo "🔍 Current directory: $(pwd)"
-      - find . -name "package.json"
+      - echo "Starting install phase"
       - cd my-strapi-app/my-app
-      - echo "✅ Changed to directory: $(pwd)"
+      - echo "In directory: $(pwd)"
+      - ls -la
       - npm install
 
   build:
@@ -23,4 +23,3 @@ artifacts:
 cache:
   paths:
     - my-strapi-app/my-app/node_modules/**/*
-
