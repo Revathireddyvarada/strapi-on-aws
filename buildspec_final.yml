@@ -1,27 +1,8 @@
 version: 0.2
 
-env:
-  image: aws/codebuild/standard:7.0
-  runtime-versions:
-    nodejs: 18
-
 phases:
   install:
     commands:
-      - "echo '✅ Using buildspec_final.yml!'"
-      - "cd my-strapi-app/my-app"
-      - "npm install"
-
-  build:
-    commands:
-      - "cd my-strapi-app/my-app"
-      - "npm run build"
-
-artifacts:
-  base-directory: my-strapi-app/my-app
-  files:
-    - '**/*'
-
-cache:
-  paths:
-    - my-strapi-app/my-app/node_modules/**/*
+      # This command will list all files and folders recursively from the starting point.
+      # The 'cd' command has been removed to ensure this command runs.
+      - "ls -R"
