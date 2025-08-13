@@ -10,7 +10,7 @@ phases:
     commands:
       - "echo '🔧 Using Node $(node --version)'"
       - "cd my-strapi-app/my-app"
-      - "npm ci"
+      - "npm install"
 
   build:
     commands:
