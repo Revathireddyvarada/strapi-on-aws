@@ -8,8 +8,13 @@ env:
 phases:
   install:
     commands:
-      - "echo '🔧 Using Node $(node --version)'"
+      # ADD THIS UNIQUE LINE
+      - "echo '✅ Successfully loaded buildspec.yml from repository!'"
+      
+      # This command navigates to the root of your Strapi application
       - "cd my-strapi-app/my-app"
+      
+      # This command installs all your project dependencies
       - "npm install"
 
   build:
@@ -25,6 +30,4 @@ artifacts:
 cache:
   paths:
     - my-strapi-app/my-app/node_modules/**/*
-
-
 
