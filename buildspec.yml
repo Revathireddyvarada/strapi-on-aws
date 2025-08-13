@@ -9,9 +9,8 @@ phases:
   install:
     commands:
       - "echo '🔧 Using Node $(node --version)'"
-      - "echo '🔧 Compiler: $(g++ --version)'"
       - "cd my-strapi-app/my-app"
-      - "npm install"
+      - "npm ci"
 
   build:
     commands:
@@ -26,5 +25,6 @@ artifacts:
 cache:
   paths:
     - my-strapi-app/my-app/node_modules/**/*
+
 
 
