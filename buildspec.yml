@@ -5,9 +5,11 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      - echo "🔍 Finding package.json..."
+      - echo "🔍 Current directory: $(pwd)"
       - find . -name "package.json"
-      - cd strapi-on-aws/my-strapi-app/my-app
+      # ✅ Change to the correct directory
+      - cd my-strapi-app/my-app
+      - echo "✅ Changed to directory: $(pwd)"
       - npm install
 
   build:
@@ -15,10 +17,11 @@ phases:
       - npm run build
 
 artifacts:
-  base-directory: strapi-on-aws/my-strapi-app/my-app
+  # ✅ Make sure to package the built app
+  base-directory: my-strapi-app/my-app
   files:
     - '**/*'
 
 cache:
   paths:
-    - 'strapi-on-aws/my-strapi-app/my-app/node_modules/**/*'
+    - my-strapi-app/my-app/node_modules/**/*
