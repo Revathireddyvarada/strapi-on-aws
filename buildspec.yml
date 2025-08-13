@@ -5,13 +5,20 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
+      - echo "🔍 Finding package.json..."
+      - find . -name "package.json"
+      - cd strapi-on-aws/my-strapi-app/my-app
       - npm install
+
   build:
     commands:
       - npm run build
+
 artifacts:
+  base-directory: strapi-on-aws/my-strapi-app/my-app
   files:
     - '**/*'
+
 cache:
   paths:
-    - node_modules/**/*
+    - 'strapi-on-aws/my-strapi-app/my-app/node_modules/**/*'
