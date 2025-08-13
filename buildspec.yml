@@ -5,7 +5,8 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      - echo "Starting install phase"
+      - echo "🔧 Using Node $(node --version)"
+      - echo "🔧 Compiler: $(g++ --version)"
       - cd my-strapi-app/my-app
       - npm install
 
