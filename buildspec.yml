@@ -1,9 +1,12 @@
 version: 0.2
 
+env:
+  image: aws/codebuild/standard:7.0
+  runtime-versions:
+    nodejs: 18
+
 phases:
   install:
-    runtime-versions:
-      nodejs: 18
     commands:
       - "echo '🔧 Using Node $(node --version)'"
       - "echo '🔧 Compiler: $(g++ --version)'"
@@ -22,3 +25,4 @@ artifacts:
 cache:
   paths:
     - my-strapi-app/my-app/node_modules/**/*
+
