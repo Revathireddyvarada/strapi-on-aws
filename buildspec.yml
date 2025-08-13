@@ -5,14 +5,14 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      - echo "🔧 Using Node $(node --version)"
-      - echo "🔧 Compiler: $(g++ --version)"
-      - cd my-strapi-app/my-app
-      - npm install
+      - "echo '🔧 Using Node $(node --version)'"
+      - "echo '🔧 Compiler: $(g++ --version)'"
+      - "cd my-strapi-app/my-app"
+      - "npm install"
 
   build:
     commands:
-      - npm run build
+      - "npm run build"
 
 artifacts:
   base-directory: my-strapi-app/my-app
